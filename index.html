@@ -1,104 +1,649 @@
-﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
-    <title>SINTEF Kartklient</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport'/>
+    <meta name="viewport" content="width=device-width"/>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.19.0/ol.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.js" type="text/javascript"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js" type="text/javascript" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.2.1/chroma.min.js" charset="utf-8"></script>
-    <script src="libs/when/2.6.0/when.js" type="text/javascript"></script>
+    <title>Karttester</title>
+    <meta itemprop="name" content="HaroBoard"/>
+    <meta itemprop="description" name="description" content="Data managing application"/>
+    <meta itemprop="author" name="author" content="Peter Haro"/>
 
-    <script src="./libs/layerswitcher.js" type="text/javascript"></script>
-    <script src="./javascript/statenskartverk_opencache.js" type="text/javascript"></script>
-    <script src="./javascript/MapUtil.js" type="text/javascript"></script>
-    <script src="./javascript/utc.js" type="text/javascript"></script>
-    <script src="./javascript/decoder.js" type="text/javascript"></script>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="HaroBoard"/>
+    <meta property="og:description" content="Data managing application"/>
+    <meta property="og:url" content="https://peterharo.github.io/"/>
+    <meta property="og:image" content="https://peterharo.github.io/preview"/>
 
-    <!-- Palettes: Note that the fancy palettes requires chroma.js in order to render them. These can be replcaed by using ranges --> 
-    <script src="./javascript/palette.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/co2scpalette.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/SulfurDioxidePalette.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/co2.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/ppb.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/Kindleman.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/duexPalette.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/sulfateExPalette.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/rainPalette.js" charset="utf-8"></script>
-    <script src="./javascript/palettes/capePalette.js" charset="utf-8"></script>
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="apple-touch-icon" sizes="120x120" href="/iphone-icon.png"/>
+    <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png"/>
+    <link rel="stylesheet" type="text/css" href="./styles/styles.min.css"/>
+    <link rel="stylesheet" type="text/css" href="./styles/pe-icon-7-stroke.css">
+    <link rel="stylesheet" type="text/css" href="./styles/libs/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./libs/font-awesome-4.7.0/css/font-awesome.min.css">
 
-    <!-- Map animation -->
-    <script src="./javascript/bilinear.js" charset="utf-8"></script>
-    <script src="./javascript/nearest.js" charset="utf-8"></script>
-    <script src="./javascript/MapUtility.js" charset="utf-8"></script>
-    <script src="./javascript/products.js" charset="utf-8"></script>
+    <!-- Cesium -->
+    <style>
+        @import url(./libs/haroBoard/maps/Cesium/Widgets/widgets.css);
+        @import url(./libs/haroBoard/maps/Cesium/Widgets/Viewer/viewer.css);
+        @import url(./libs/haroBoard/maps/Cesium/Widgets/BaseLayerPicker/BaseLayerPicker.css);
+
+        div.control-sidebar {
+            width: 420px;
+            background: #2c2c2c;
+            position: absolute;
+            top: 0;
+            right: -420px;
+            z-index: 7;
+        }
+
+        div.control-sidebar.control-sidebar-open {
+            right: 0;
+        }
+
+        ul.sidebar-window-controls {
+            display: table;
+            clear: both;
+            width: 100%;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        ul.sidebar-window-controls li {
+            list-style-type: none;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 10px;
+            float: left;
+            width: 25%;
+            box-sizing: border-box;
+            padding: 0 0 7px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #777;
+            cursor: pointer;
+        }
+
+        ul.sidebar-window-controls li:hover {
+            color: #FFF;
+            border: 1px solid rgba(25, 130, 209, 1) !important;
+            box-shadow: 0 0 5px #1982D1;
+            outline-color: #1982D1;
+            background: #262b31;
+        }
+
+        ul.sidebar-window-controls li i {
+            color: #FFF;
+            position: relative;
+            top: 3px;
+            padding-right: 4px;
+        }
+
+        div.search {
+            background-color: #2c2c2c;
+            width: 100%;
+        }
+
+        div.search span.input-group-addon {
+            background-color: transparent;
+            color: #fff;
+        }
+
+        div.search input.form-control {
+            color: #fff;
+            background-color: transparent;
+            margin: 0 auto;
+            padding: 16px 42px 20px 16px;
+            height: 32px;
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        div.search input#search-input {
+            border: solid 1px #444;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        div.search:hover input#search-input {
+            border-color: #1982D1;
+            box-shadow: 0 0 8px #1982D1;
+        }
+
+        div.search input#search-input:focus {
+            border-color: #ea4;
+            box-shadow: none;
+            outline: none;
+        }
+
+        span#search {
+            background-color: transparent;
+            display: inline-block;
+            position: absolute;
+            cursor: pointer;
+            width: 42px;
+            top: 1px;
+            right: 1px;
+            height: 36px;
+            vertical-align: middle;
+            fill: #1982D1;
+            border: 0;
+        }
+
+        span#search i.fa {
+            position: relative;
+            top: 4px;
+        }
+
+        h1.cv-header {
+            display: block;
+            text-align: center;
+            text-transform: uppercase;
+            color: #FFF;
+            background: #1c1c1c;
+            padding: 5px 0;
+            margin: 0;
+        }
+
+        h1.cv-header span {
+            color: #1982D1;
+        }
+
+        div.cv-learn {
+            color: #CCC;
+            text-align: center;
+            padding: 20px 20px 0 20px;
+        }
+
+        p.instruct {
+            color: #CCC;
+            text-align: center;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 400;
+            margin: 0;
+            padding: 23px 0 23px 0;
+        }
+
+        p.active-layers-label,
+        div#active-layers {
+            display: none;
+        }
+
+        div#active-layers-toggle {
+            margin-top: 30px;
+        }
+
+        div.map-layers {
+            border-bottom: 1px solid #333333;
+            color: #222222;
+        }
+
+        div.folder {
+            padding: 0;
+            display: none;
+            background-color: #171717;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+        }
+
+        div.map-layers div.folder div.folder {
+            background: #1c1c1c;
+            color: #222222;
+            margin: 0;
+            padding: 1px 0 0 0;
+            border-bottom: 0;
+        }
+
+        div.map-layers h2.toggle {
+            cursor: pointer;
+            text-align: left;
+            font-size: 12px;
+            margin: 0 auto;
+            color: #777;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 6px 0;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        div.map-layers h2.toggle:focus, div.map-layers h2.toggle:hover {
+            background: #1982D1;
+        }
+
+        div.map-layers .folder h2.toggle {
+            padding-left: 20px;
+        }
+
+        div.map-layers h2.toggle:first-child {
+            border-top: 1px solid #333333;
+        }
+
+        div.map-layers > h2.toggle {
+            font-size: 14px;
+            color: #eee;
+            text-align: center;
+        }
+
+        div.map-layers .folder h2.toggle:focus, div.map-layers .folder h2.toggle:hover {
+            background: #000;
+            color: #FFF;
+            border-bottom: 1px solid #1982D1;
+        }
+
+        div.map-layers h2.toggle.active {
+            color: #eee;
+            background: #000000;
+            border-bottom: 3px solid #1982D1 !important;
+            padding-bottom: 7px;
+        }
+
+        div.map-layers h2.toggle i {
+            margin-right: 10px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        div.map-layers h2.toggle.active i {
+            color: #1982D1;
+        }
+
+        div.map-layers .folder h2.toggle i {
+            color: #CCC;
+        }
+
+        div.map-layers .folder h2.toggle.active i {
+            color: #1982D1;
+        }
+
+        /* LBW = layer bar wrapper, LB = duh */
+        div.lbw {
+            display: block;
+            width: 100%;
+            background: #FFFFFF;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+        }
+
+        div.lbw:nth-child(even) {
+            background: #EEEEEE;
+        }
+
+        div.lb {
+            display: block;
+            width: 100%;
+            background: transparent;
+            position: relative;
+            margin: 0;
+            padding: 2px 0 2px 7px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        div.lb span, div.lb i {
+            color: #000000;
+            cursor: pointer;
+        }
+
+        div.lb i.fa-folder-o,
+        div.lb i.fa-folder-open-o,
+        div.lb i.fa-play,
+        div.lb i.fa-check,
+        div.lb i.fa-exclamation-triangle,
+        div.lb i.fa-spinner {
+            margin-right: 5px;
+        }
+
+        div.lb span.label {
+            text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
+            font-size: 12px;
+            line-height: 14px;
+        }
+
+        div.lb i.fa.active, div.lb span.active {
+            color: #1982D1;
+        }
+
+        i.toggle-list {
+            display: none;
+            padding-right: 5px;
+        }
+
+        i.toggle-list.active {
+            color: #1982D1;
+            display: inline-block !important;
+        }
+
+        i.toggle-list span {
+            margin-left: 5px;
+        }
+
+        i.large-layer {
+            color: #ff0000 !important;
+        }
+
+        i.new-layer {
+            color: #0c9017 !important;
+        }
+
+        div.layer-details div.details {
+            padding-bottom: 15px;
+        }
+
+        div.lb i.fail, div.lb span.fail {
+            color: #f00;
+        }
+
+        div.lb span.fail {
+            text-decoration: line-through;
+        }
+
+        /* SLIDERS */
+        div.lb i.fa-sliders {
+            display: none;
+            padding-right: 5px;
+        }
+
+        div.lb i.fa-sliders.show-sliders {
+            color: #1982D1;
+            display: inline-block !important;
+        }
+
+        div.layer-sliders {
+            padding: 10px 20px 20px 20px;
+            box-sizing: border-box;
+            display: none;
+        }
+
+        div.slider .label {
+            color: #777;
+            font-size: 12px;
+            position: relative;
+            top: 5px;
+            text-transform: uppercase;
+        }
+
+        /* DETAILS PANEL */
+        .marker-list {
+            max-height: 300px;
+            overflow: auto;
+            padding-bottom: 0;
+            display: none;
+        }
+
+        .marker-list h5 {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+
+        .marker-list h5 i {
+            color: #1982D1;
+        }
+
+        .marker-list ol, .marker-list ul {
+            margin: 3px 0;
+            padding: 0 0 0 25px;
+            font-size: 10px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        .marker-list li, .marker-list h3 {
+            margin: 0;
+            line-height: 16px;
+        }
+
+        .marker-list h3:hover {
+            color: #1982D1;
+        }
+
+        .details {
+            background: #FFF;
+            color: #222222;
+            padding: 10px 20px 20px 20px;
+            box-sizing: border-box;
+            font-size: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+
+        .details .header {
+            font-weight: 700;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .details .header:not(:first-child) {
+            margin-top: 1.3rem;
+        }
+
+        .details .header i {
+            color: #1982D1;
+        }
+
+        .details span {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .details span img {
+            max-width: 100%;
+        }
+
+        .details-bottom-content {
+            padding: 10px;
+            font-weight: 700;
+        }
+
+        .darkwell {
+            background: #DDD;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid #777;
+        }
+
+        .menu-left {
+            float: left !important;
+        }
+
+        /* nSlider */
+        input[type=range] {
+            -webkit-appearance: none;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8.4px;
+            cursor: pointer;
+            animate: 0.2s;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            background: #3071a9;
+            border-radius: 1.3px;
+            border: 0.2px solid #010101;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 36px;
+            width: 16px;
+            border-radius: 3px;
+            background: #ffffff;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -14px;
+        }
+
+        input[type=range]:focus::-webkit-slider-runnable-track {
+            background: #367ebd;
+        }
+
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 8.4px;
+            cursor: pointer;
+            animate: 0.2s;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            background: #3071a9;
+            border-radius: 1.3px;
+            border: 0.2px solid #010101;
+        }
+
+        input[type=range]::-moz-range-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 36px;
+            width: 16px;
+            border-radius: 3px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        input[type=range]::-ms-track {
+            width: 100%;
+            height: 8.4px;
+            cursor: pointer;
+            animate: 0.2s;
+            background: transparent;
+            border-color: transparent;
+            border-width: 16px 0;
+            color: transparent;
+        }
+
+        input[type=range]::-ms-fill-lower {
+            background: #2a6495;
+            border: 0.2px solid #010101;
+            border-radius: 2.6px;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+        }
+
+        input[type=range]::-ms-fill-upper {
+            background: #3071a9;
+            border: 0.2px solid #010101;
+            border-radius: 2.6px;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+        }
+
+        input[type=range]::-ms-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 36px;
+            width: 16px;
+            border-radius: 3px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        input[type=range]:focus::-ms-fill-lower {
+            background: #3071a9;
+        }
+
+        input[type=range]:focus::-ms-fill-upper {
+            background: #367ebd;
+        }
 
 
-    <!-- CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.19.0/ol.css" rel="stylesheet" type="text/css"/>
-    <link href="./css/layerswitcher.css" rel="stylesheet" type="text/css"/>
+    </style>
+
+
 </head>
-<body>
-<div id="map">
+<body data-lang="en">
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
 
+<div id="cesiumContainer"></div>
+<div class="choose-imagery-date" title="Choose Imagery Date">
+    <input type="text" value="" class="datepicker picker__input" id="datepicker" name="date" readonly=""
+           aria-haspopup="true" aria-expanded="false" aria-readonly="false" aria-owns="datepicker_root">
 </div>
-<script>
-    var bingKey = "Avnp6qh3QBzlcnc2VRaZwWnENO58gVi20PhDRUnZNh8JlZ8DxtGiGe-JLScNzh-x";
-    var overlayGroup = CreateEmptyOpenlayersGroup("Overlays");
+<div class="choose-imagery-date-cap" title="Choose Imagery Date"></div>
+                <div id="pb">
+                    <div id="pb_head"><h3>Profile Browser</h3></div>
+                    <div id="pb_list" class="scroll-pane horizontal-only"><p>
+                        <div id="pb_list_items"></div>
+                        </p></div>
 
-    var statensKartverk = new StatensKartverkCommunicator();
-    var tileLayerWMTS = statensKartverk.CreateTileLayerWTMSFromSource(statensKartverk.CreateSourceWmts("sjo_hovedkart2"), "base", "Norges grunnkart");
-    var defaultControls = createDefaultControls();
-    
-    var map = new ol.Map({
-        target: 'map',
-        layers: [
-            new ol.layer.Group({
-                title: 'Grunnkart',
-                layers: [
-                    new ol.layer.Tile({
-                        title: 'Satelitt',
-                        type: 'base',
-                        source: new ol.source.BingMaps({
-                            key: bingKey,
-                            imagerySet: "Aerial"
-                            // use maxZoom 19 to see stretched tiles instead of the BingMaps
-                            // "no photos at this zoom level" tiles
-                            // maxZoom: 19
-                        })
-                    }),
-                    tileLayerWMTS,
-                    new ol.layer.Tile({ title: "OSM", type: "base", source: new ol.source.OSM() })
-                ]
-            }),
-            overlayGroup
-        ],
-        controls: defaultControls,
-        view: CreateEsushiDefaultView()
-    });
-
-    var layerSwitcher = new ol.control.LayerSwitcher({
-        tipLabel: "Kartlag"
-    });
-
-    map.addControl(layerSwitcher);
-    overlayGroup.getLayers().push(new ol.layer.Tile({
-        title: 'Kommunegrenser',
-        source: new ol.source.TileWMS({
-            url: 'http://demo.opengeo.org/geoserver/wms',
-            params: { 'LAYERS': 'ne:ne_10m_admin_1_states_provinces_lines_shp' },
-            serverType: 'geoserver'
-        })
-    }));
-
-    //ANIMATION TEST FROM HERE ON DOWN
-    var myTest = products.overlayTypes;
+                    <div id="pb_toggle">
+                        <input id="myButton" style="border-radius:5px;
+border-bottom-right-radius:5px;" type="button" value="Toggle Orbital Tracks" onClick="data_curtain.toggleMarkers();"/>
+                        <input id="myButton" style="margin-top:5px; border-bottom-left-radius:5px;
+border-bottom-right-radius:5px;" type="button" value="Toggle Day/Night Orbits" onClick="data_curtain.toggleDN();"/>
+                    </div>
+                </div>
 
 
 
+<div id="baseLayerPickerContainer" style="position:absolute;top:24px;right:24px;width:38px;height:38px;"></div>
+<section id="open-menu" class="material-design-hamburger" class="layer-menu-toggle"
+         title="Click here to open the application menu">
+    <button class="material-design-hamburger__icon">
+        <span class="material-design-hamburger__layer" data-color="blue"></span>
+    </button>
+</section>
 
+<!-- MENU AND STUFF -->
+<div class="control-sidebar">
+    <!-- Create the tabs -->
+    <ul class="sidebar-window-controls">
+        <li id="active-layers-toggle" title="Filter Layer List By Active or All Layers"><i class="fa fa-2x fa-eye"></i>
+            Active
+        </li>
+        <li id="collapse-menu" title="Collapse open folders"><i class="fa fa-2x fa-compress"></i> Collapse</li>
+        <li id="top-layers" title="Scroll to menu top"><i class="fa fa-2x fa-angle-up"></i> Top</li>
+        <li id="close-menu" title="Close this menu"><i class="fa fa-2x fa-close"></i> Close</li>
+    </ul>
+    <!-- Tab panes -->
+    <div id="top" class="map-layers-window">
+        <div class="search"></div>
+        <h1 id="phone-home" class="cv-header"><span>CesiumViewer</span></h1>
+        <p class="instruct all-layers-label">Choose Category</p>
+        <div id="map-layers" class="map-layers"></div>
+        <p class="instruct active-layers-label">Active Layers</p>
+        <div id="active-layers" class="map-layers"></div>
+        <div id="base"></div>
+    </div>
+</div>
+</div>
 
-
-</script>
 </body>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.migrate/1.2.1/jquery-migrate.min.js"></script>
+<script src="./libs/lodash.4.17.4/lodash.min.js"></script>
+<script type="text/javascript" src="./libs/pickadate-3.5.6/combined.js"></script> <!-- TODO: MIGRATE AWAY FROM ME -->
+<script src="./libs/graphlib.2.1.1/graphlib.min.js"></script>
+<script src="./libs/haroBoard/maps/Cesium/haroboard/nobject_graph_injection.js"></script>
+<script src="./libs/haroBoard/maps/Cesium/Cesium.js"></script>
+<script src="./libs/haroBoard/maps/Cesium/haroboard/base_layer_injector.js"></script>
+<script src="./libs/haroBoard/maps/Cesium/haroboard/layers_configuration.js"></script>
+<script src="./libs/haroBoard/maps/cesium_map.js"></script>
+<script src="./libs/haroBoard/material_design/hamburger.js"></script>
+<script src="./libs/haroBoard/maps/data-curtains-standalone.js"></script>
+<script>
+    materialDesignHamburger();
+    var curtain = new data_curtain(cesiumWidget);
+    curtain.init();
+</script>
+
 </html>
