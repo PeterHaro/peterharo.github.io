@@ -27,7 +27,7 @@ var data_curtain = function (viewer) {
     function readJSON(metadata_date, callback) {
         var xhttpObj = new XMLHttpRequest();
         xhttpObj.overrideMimeType("application/json");
-        xhttpObj.open('GET', 'data/nasa_curtain/' + metadata_date + '.json', true);
+        xhttpObj.open('GET', 'public/data/nasa_curtain/' + metadata_date + '.json', true);
         xhttpObj.onreadystatechange = function () {
             if (xhttpObj.readyState == 4 && xhttpObj.status == "200") {
                 callback(xhttpObj.responseText);
