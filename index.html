@@ -579,20 +579,22 @@
            aria-haspopup="true" aria-expanded="false" aria-readonly="false" aria-owns="datepicker_root">
 </div>
 <div class="choose-imagery-date-cap" title="Choose Imagery Date"></div>
-                <div id="pb">
-                    <div id="pb_head"><h3>Profile Browser</h3></div>
-                    <div id="pb_list" class="scroll-pane horizontal-only"><p>
-                        <div id="pb_list_items"></div>
-                        </p></div>
+<div id="pb">
+    <h3 id="mordi" style="margin-top: 50px; background-color: white">Turn on data-curtain Demo</h3>
+    <div id="pb-body-wrapper" style="visibility: hidden;">
+        <div id="pb_head"><h3>Profile Browser</h3></div>
+        <div id="pb_list" class="scroll-pane horizontal-only"><p>
+            <div id="pb_list_items"></div>
+            </p></div>
 
-                    <div id="pb_toggle">
-                        <input id="myButton" style="border-radius:5px;
+        <div id="pb_toggle">
+            <input id="myButton" style="border-radius:5px;
 border-bottom-right-radius:5px;" type="button" value="Toggle Orbital Tracks" onClick="curtain.toggleMarkers();"/>
-                        <input id="myButton" style="margin-top:5px; border-bottom-left-radius:5px;
+            <input id="myButton" style="margin-top:5px; border-bottom-left-radius:5px;
 border-bottom-right-radius:5px;" type="button" value="Toggle Day/Night Orbits" onClick="curtain.toggleDN();"/>
-                    </div>
-                </div>
-
+        </div>
+    </div>
+</div>
 
 
 <div id="baseLayerPickerContainer" style="position:absolute;top:24px;right:24px;width:38px;height:38px;"></div>
@@ -642,8 +644,18 @@ border-bottom-right-radius:5px;" type="button" value="Toggle Day/Night Orbits" o
 <script src="./libs/haroBoard/maps/data-curtains-standalone.js"></script>
 <script>
     materialDesignHamburger();
-    var curtain = new data_curtain(cesiumWidget);
-    curtain.init();
+
+    $(document).ready(function () {
+        $("#mordi").click(function (e) {
+            $(this).hide();
+            var curtain = new data_curtain(cesiumWidget);
+            curtain.init();
+            $("#pb-body-wrapper").css('visibility','visible');
+        });
+    });
+
+    //    var curtain = new data_curtain(cesiumWidget);
+    //  curtain.init();
 </script>
 
 </html>
