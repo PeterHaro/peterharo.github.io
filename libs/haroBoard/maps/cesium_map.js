@@ -92,6 +92,28 @@ if (allLayers.length > 0) {
 }
 
 
+function toggleTimeline(show) {
+    if (show) {
+        animationContainer.show();
+        timelineContainer.addClass('show');
+        $('#toggle-timeline').addClass('active');
+    } else if (timelineContainer.is(":visible")) {
+        animationContainer.hide();
+        timelineContainer.removeClass('show');
+        $('#toggle-timeline').removeClass('active');
+    } else {
+        animationContainer.show();
+        timelineContainer.addClass('show');
+        var startTime = Cesium.JulianDate.fromDate(new Date(Date.UTC(2012, 4, 8))),
+            endTime = Cesium.JulianDate.now();
+        viewer.timeline.zoomTo(startTime, endTime);
+        $('#toggle-timeline').addClass('active');
+    }
+}
+$('#toggle-timeline').click(function () {
+    toggleTimeline();
+});
+
 // __UI_ELEMENTS_
 function toggleSidebar() {
     var clientHeight = $(window).height(),
@@ -787,11 +809,20 @@ function loadKml(layerId, geoDataSrc, proxy, zoom, markerImg, markerScale, marke
             loadError(layerId, geoDataSrc, error);
         }); // end then
     } else {
-        new Cesium.KmlDataSource.load(geoDataSrc).then(function (geoData) {
+        new Cesium.KmlDataSource.load(geoDataSrc, {
+            camera: cesiumWidget.scene.camera,
+            canvas: cesiumWidget.scene.canvas
+        }).then(function (geoData) {
             if (markerMod) {
                 modMarkers(geoData, markerImg, markerScale, markerLabel);
             } // end markerMod
+            console.log("==========================");
+            console.log("INSIDE LOAD");
+            console.log("==========================");
             cesiumWidget.dataSources.add(geoData);
+            console.log("==========================");
+            console.log("AFTER ADD");
+            console.log("==========================");
             activeLayers[layerId] = geoData;
             /* if (zoom) {
              if (zoom === true) {
@@ -800,6 +831,9 @@ function loadKml(layerId, geoDataSrc, proxy, zoom, markerImg, markerScale, marke
              $('.cesium-home-button').trigger('click');
              }
              } */
+            console.log("==========================");
+            console.log("CALLING LOADED");
+            console.log("==========================");
             loaded(layerId);
         }, function (error) {
             loadError(layerId, geoDataSrc, error);
@@ -859,7 +893,7 @@ function updateLayer(layerId, includeOnly) {
         noList = l.Y,
         format = l.F,
         zoomLevel = l.Fz,
-        proxy = l.P,
+        proxy = null,
         noFeatures = l.X,
         zoom;
     var selectedDate = picker.get('select', 'yyyy-mm-dd');
